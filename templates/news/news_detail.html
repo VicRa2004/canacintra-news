@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ news.title }} - Canacintra News{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <article class="bg-white p-4 rounded shadow-sm">
+            <header class="mb-4">
+                <h1 class="display-5 fw-bold">{{ news.title }}</h1>
+                <p class="text-muted">
+                    Por <strong>{{ news.author.username }}</strong> | 
+                    {{ news.published_at|date:"d F, Y H:i" }} | 
+                    <span class="badge bg-info text-dark">{{ news.category.name }}</span>
+                </p>
+            </header>
+
+            {% if news.image %}
+                <img src="{{ news.image.url }}" class="img-fluid rounded mb-4 w-100" alt="{{ news.title }}">
+            {% endif %}
+
+            <div class="news-content mb-5" style="white-space: pre-line; line-height: 1.8;">
+                {{ news.content }}
+            </div>
+
+            <hr>
+
+            <!-- Sección de Comentarios -->
+            <section class="mt-5">
+                <h3>Comentarios ({{ comments.count }})</h3>
+                
+                <div class="list-group mb-4 mt-3">
+                    {% for comment in comments %}
+                    <div class="list-group-item">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1 fw-bold">{{ comment.user.username }}</h6>
+                            <small class="text-muted">{{ comment.created_at|timesince }} ago</small>
+                        </div>
+                        <p class="mb-1">{{ comment.content }}</p>
+                    </div>
+                    {% empty %}
+                    <p class="text-muted italic">No hay comentarios aún. ¡Sé el primero!</p>
+                    {% endfor %}
+                </div>
+
+                <div class="card bg-light">
+                    <div class="card-body">
+                        <h5 class="card-title">Deja un comentario</h5>
+                        {% if user.is_authenticated %}
+                        <form action="{% url 'add_comment' news.pk %}" method="post">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                {{ comment_form.content }}
+                            </div>
+                            <button type="submit" class="btn btn-primary">Publicar comentario</button>
+                        </form>
+                        {% else %}
+                        <p class="mb-0">Debes <a href="{% url 'login' %}?next={{ request.path }}">iniciar sesión</a> para comentar.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </section>
+        </article>
+    </div>
+</div>
+{% endblock %}

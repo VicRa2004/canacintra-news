@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block title %}Inicio - Canacintra News{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Sidebar: Categorías -->
+    <div class="col-md-3">
+        <div class="list-group mb-4">
+            <a href="{% url 'news_list' %}" class="list-group-item list-group-item-action {% if not current_category %}active{% endif %}">
+                Todas las categorías
+            </a>
+            {% for category in categories %}
+            <a href="{% url 'news_list' %}?category={{ category.slug }}{% if query %}&q={{ query }}{% endif %}" 
+               class="list-group-item list-group-item-action {% if current_category == category.slug %}active{% endif %}">
+                {{ category.name }}
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Main Content: Noticias -->
+    <div class="col-md-9">
+        <h2 class="mb-4">
+            {% if query %}
+                Resultados para: "{{ query }}"
+            {% elif current_category %}
+                Noticias en: {{ current_category }}
+            {% else %}
+                Últimas Noticias
+            {% endif %}
+        </h2>
+
+        {% if news_list %}
+            <div class="row row-cols-1 row-cols-md-2 g-4">
+                {% for news in news_list %}
+                <div class="col">
+                    <div class="card h-100 shadow-sm">
+                        {% if news.image %}
+                            <img src="{{ news.image.url }}" class="card-img-top" alt="{{ news.title }}" style="height: 200px; object-fit: cover;">
+                        {% else %}
+                            <div class="bg-secondary text-white d-flex align-items-center justify-content-center" style="height: 200px;">
+                                <span>Sin imagen</span>
+                            </div>
+                        {% endif %}
+                        <div class="card-body">
+                            <h5 class="card-title">{{ news.title }}</h5>
+                            <p class="card-text text-muted small">
+                                <span class="badge bg-info text-dark">{{ news.category.name }}</span> | 
+                                {{ news.published_at|date:"d M, Y" }}
+                            </p>
+                            <p class="card-text">{{ news.content|truncatewords:20 }}</p>
+                            <a href="{% url 'news_detail' news.slug %}" class="btn btn-primary btn-sm">Leer más</a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Paginación -->
+            {% if is_paginated %}
+            <nav class="mt-5">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                        <li class="page-item"><a class="page-item" href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if current_category %}&category={{ current_category }}{% endif %}">Anterior</a></li>
+                    {% endif %}
+                    <li class="page-item disabled"><span class="page-link">Página {{ page_obj.number }} de {{ paginator.num_pages }}</span></li>
+                    {% if page_obj.has_next %}
+                        <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if current_category %}&category={{ current_category }}{% endif %}">Siguiente</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+
+        {% else %}
+            <div class="alert alert-info">No se encontraron noticias.</div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
