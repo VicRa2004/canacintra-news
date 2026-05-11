@@ -45,8 +45,10 @@ class NewsDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['comment_form'] = CommentForm()
-        context['comments'] = self.object.comments.all()
+        context['comments'] = self.object.comments.filter(is_approved=True)
         return context
+
+from django.contrib import messages
 
 @login_required
 def add_comment(request, pk):
@@ -58,6 +60,7 @@ def add_comment(request, pk):
             comment.news = news
             comment.user = request.user
             comment.save()
+            messages.success(request, 'Tu comentario ha sido enviado y está pendiente de aprobación.')
     return redirect('news_detail', slug=news.slug)
 
 class SignUpView(CreateView):

@@ -36,6 +36,9 @@ ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 # Application definition
 
 INSTALLED_APPS = [
+    'unfold',
+    'unfold.contrib.filters',
+    'unfold.contrib.forms',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -44,6 +47,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # My apps
     'news',
+    'django_ckeditor_5',
 ]
 
 MIDDLEWARE = [
@@ -141,3 +145,107 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Authentication redirects
 LOGIN_REDIRECT_URL = 'news_list'
 LOGOUT_REDIRECT_URL = 'news_list'
+
+# CKEditor 5 Configuration
+CKEDITOR_5_CONFIGS = {
+    'default': {
+        'toolbar': [
+            'heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', 'blockQuote', 'imageUpload',
+        ],
+    },
+    'extends': {
+        'blockToolbar': [
+            'paragraph', 'heading1', 'heading2', 'heading3',
+            '|',
+            'bulletedList', 'numberedList',
+            '|',
+            'blockQuote',
+        ],
+        'toolbar': [
+            'heading', '|', 'outdent', 'indent', '|', 'bold', 'italic', 'link', 'underline', 'strikethrough',
+            'code', 'subscript', 'superscript', 'highlight', '|', 'codeBlock', 'sourceEditing', 'insertImage',
+            'bulletedList', 'numberedList', 'todoList', '|',  'blockQuote', 'imageUpload', '|',
+            'fontSize', 'fontFamily', 'fontColor', 'fontBackgroundColor', 'mediaEmbed', 'removeFormat',
+            'insertTable',
+        ],
+        'image': {
+            'toolbar': ['imageTextAlternative', '|', 'imageStyle:alignLeft',
+                        'imageStyle:alignCenter', 'imageStyle:alignRight', 'imageStyle:full', 'imageStyle:side',
+                        '|'],
+            'styles': [
+                'full',
+                'side',
+                'alignLeft',
+                'alignCenter',
+                'alignRight',
+            ]
+        },
+        'table': {
+            'contentToolbar': ['tableColumn', 'tableRow', 'mergeTableCells',
+                               'tableProperties', 'tableCellProperties'],
+            'tableToolbar': ['bold', 'italic', 'link', 'underline', 'strikethrough',
+                             'code', 'subscript', 'superscript', 'highlight', '|', 'codeBlock', 'sourceEditing',
+                             'insertImage', 'bulletedList', 'numberedList', 'todoList', '|',  'blockQuote',
+                             'imageUpload', '|', 'fontSize', 'fontFamily', 'fontColor', 'fontBackgroundColor',
+                             'mediaEmbed', 'removeFormat', 'insertTable']
+        },
+        'heading': {
+            'options': [
+                {'model': 'paragraph', 'title': 'Paragraph', 'class': 'ck-heading_paragraph'},
+                {'model': 'heading1', 'view': 'h1', 'title': 'Heading 1', 'class': 'ck-heading_heading1'},
+                {'model': 'heading2', 'view': 'h2', 'title': 'Heading 2', 'class': 'ck-heading_heading2'},
+                {'model': 'heading3', 'view': 'h3', 'title': 'Heading 3', 'class': 'ck-heading_heading3'}
+            ]
+        }
+    },
+}
+
+# UNFOLD Admin Configuration
+UNFOLD = {
+    "SITE_TITLE": "Canacintra News Admin",
+    "SITE_HEADER": "Canacintra News",
+    "SITE_SYMBOL": "speed",  # icon from material symbols
+    "THEME": "light",
+    "COLORS": {
+        "primary": {
+            "50": "249 250 251",
+            "100": "243 244 246",
+            "200": "229 231 235",
+            "300": "209 213 219",
+            "400": "156 163 175",
+            "500": "107 114 128",
+            "600": "75 85 99",
+            "700": "55 65 81",
+            "800": "31 41 55",
+            "900": "17 24 39",
+            "950": "3 7 18",
+        },
+    },
+    "SIDEBAR": {
+        "show_search": True,
+        "show_all_applications": True,
+        "navigation": [
+            {
+                "title": "Gestión de Contenidos",
+                "separator": True,
+                "items": [
+                    {
+                        "title": "Noticias",
+                        "icon": "article",
+                        "link": "/admin/news/news/",
+                    },
+                    {
+                        "title": "Categorías",
+                        "icon": "category",
+                        "link": "/admin/news/category/",
+                    },
+                    {
+                        "title": "Comentarios",
+                        "icon": "chat_bubble",
+                        "link": "/admin/news/comment/",
+                    },
+                ],
+            },
+        ],
+    },
+}

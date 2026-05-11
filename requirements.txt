@@ -2,3 +2,5 @@ Django==5.0.6
 psycopg2-binary==2.9.9
 python-dotenv==1.0.1
 Pillow==10.3.0
+django-ckeditor-5==0.2.1
+django-unfold==0.37.0

@@ -41,6 +41,15 @@
     </header>
 
     <main class="container section">
+        {% if messages %}
+            <div class="messages" style="margin-bottom: 2rem;">
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}" style="padding: 1rem; border-radius: var(--radius); background: #e0f2fe; color: #0369a1; border-left: 4px solid var(--primary); margin-bottom: 0.5rem;">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
         {% block content %}{% endblock %}
     </main>
 

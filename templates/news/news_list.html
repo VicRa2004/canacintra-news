@@ -58,7 +58,7 @@
                             <span>{{ news.published_at|date:"d M, Y" }}</span>
                         </div>
                         <h3 class="card-title">{{ news.title }}</h3>
-                        <p class="card-text">{{ news.content|truncatewords:20 }}</p>
+                        <p class="card-text">{{ news.content|striptags|truncatewords:20 }}</p>
                         <div style="margin-top: auto;">
                             <a href="{% url 'news_detail' news.slug %}" class="btn btn-outline" style="width: 100%;">Leer Historia</a>
                         </div>
