@@ -35,8 +35,10 @@
                                 {{ user.username }}
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end">
-                                <li><a class="dropdown-item" href="{% url 'admin:index' %}">Panel Admin</a></li>
-                                <li><hr class="dropdown-divider"></li>
+                                {% if user.is_staff %}
+                                    <li><a class="dropdown-item" href="{% url 'admin:index' %}">Panel Admin</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                {% endif %}
                                 <li>
                                     <form action="{% url 'logout' %}" method="post" style="display:inline;">
                                         {% csrf_token %}

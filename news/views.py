@@ -5,6 +5,9 @@ from .models import News, Category, Comment
 from .forms import CommentForm
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
+from django.contrib.auth.forms import UserCreationForm
+from django.urls import reverse_lazy
+from django.views.generic import CreateView
 
 class NewsListView(ListView):
     model = News
@@ -56,3 +59,8 @@ def add_comment(request, pk):
             comment.user = request.user
             comment.save()
     return redirect('news_detail', slug=news.slug)
+
+class SignUpView(CreateView):
+    form_class = UserCreationForm
+    success_url = reverse_lazy('login')
+    template_name = 'registration/signup.html'
