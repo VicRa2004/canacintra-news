@@ -3,78 +3,92 @@
 {% block title %}Inicio - Canacintra News{% endblock %}
 
 {% block content %}
-<div class="row">
+<div style="display: grid; grid-template-columns: 280px 1fr; gap: 3rem;">
     <!-- Sidebar: Categorías -->
-    <div class="col-md-3">
-        <div class="list-group mb-4">
-            <a href="{% url 'news_list' %}" class="list-group-item list-group-item-action {% if not current_category %}active{% endif %}">
-                Todas las categorías
-            </a>
-            {% for category in categories %}
-            <a href="{% url 'news_list' %}?category={{ category.slug }}{% if query %}&q={{ query }}{% endif %}" 
-               class="list-group-item list-group-item-action {% if current_category == category.slug %}active{% endif %}">
-                {{ category.name }}
-            </a>
-            {% endfor %}
+    <aside>
+        <div style="position: sticky; top: 100px;">
+            <h3 style="font-size: 1.1rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 1.5rem;">Categorías</h3>
+            <ul class="sidebar-list">
+                <li class="sidebar-item">
+                    <a href="{% url 'news_list' %}" class="sidebar-link {% if not current_category %}active{% endif %}">
+                        Todas las noticias
+                    </a>
+                </li>
+                {% for category in categories %}
+                <li class="sidebar-item">
+                    <a href="{% url 'news_list' %}?category={{ category.slug }}{% if query %}&q={{ query }}{% endif %}" 
+                       class="sidebar-link {% if current_category == category.slug %}active{% endif %}">
+                        {{ category.name }}
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
         </div>
-    </div>
+    </aside>
 
     <!-- Main Content: Noticias -->
-    <div class="col-md-9">
-        <h2 class="mb-4">
-            {% if query %}
-                Resultados para: "{{ query }}"
-            {% elif current_category %}
-                Noticias en: {{ current_category }}
-            {% else %}
-                Últimas Noticias
-            {% endif %}
-        </h2>
+    <section>
+        <header style="margin-bottom: 2.5rem;">
+            <h2 style="font-size: 2.25rem; letter-spacing: -0.02em;">
+                {% if query %}
+                    Resultados para <span style="color: var(--primary);">"{{ query }}"</span>
+                {% elif current_category %}
+                    Historias en <span style="color: var(--primary);">{{ current_category }}</span>
+                {% else %}
+                    Últimas <span style="color: var(--primary);">Historias</span>
+                {% endif %}
+            </h2>
+        </header>
 
         {% if news_list %}
-            <div class="row row-cols-1 row-cols-md-2 g-4">
+            <div class="grid grid-cols-2">
                 {% for news in news_list %}
-                <div class="col">
-                    <div class="card h-100 shadow-sm">
-                        {% if news.image %}
-                            <img src="{{ news.image.url }}" class="card-img-top" alt="{{ news.title }}" style="height: 200px; object-fit: cover;">
-                        {% else %}
-                            <div class="bg-secondary text-white d-flex align-items-center justify-content-center" style="height: 200px;">
-                                <span>Sin imagen</span>
-                            </div>
-                        {% endif %}
-                        <div class="card-body">
-                            <h5 class="card-title">{{ news.title }}</h5>
-                            <p class="card-text text-muted small">
-                                <span class="badge bg-info text-dark">{{ news.category.name }}</span> | 
-                                {{ news.published_at|date:"d M, Y" }}
-                            </p>
-                            <p class="card-text">{{ news.content|truncatewords:20 }}</p>
-                            <a href="{% url 'news_detail' news.slug %}" class="btn btn-primary btn-sm">Leer más</a>
+                <article class="card">
+                    {% if news.image %}
+                        <img src="{{ news.image.url }}" class="card-img" alt="{{ news.title }}">
+                    {% else %}
+                        <div style="height: 200px; background: linear-gradient(45deg, var(--surface-muted), var(--bg-main)); display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-size: 0.8rem; font-weight: 600;">
+                            SINFOTO
+                        </div>
+                    {% endif %}
+                    <div class="card-body">
+                        <div class="card-meta">
+                            <span class="badge">{{ news.category.name }}</span>
+                            <span>•</span>
+                            <span>{{ news.published_at|date:"d M, Y" }}</span>
+                        </div>
+                        <h3 class="card-title">{{ news.title }}</h3>
+                        <p class="card-text">{{ news.content|truncatewords:20 }}</p>
+                        <div style="margin-top: auto;">
+                            <a href="{% url 'news_detail' news.slug %}" class="btn btn-outline" style="width: 100%;">Leer Historia</a>
                         </div>
                     </div>
-                </div>
+                </article>
                 {% endfor %}
             </div>
 
             <!-- Paginación -->
             {% if is_paginated %}
-            <nav class="mt-5">
-                <ul class="pagination justify-content-center">
-                    {% if page_obj.has_previous %}
-                        <li class="page-item"><a class="page-item" href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if current_category %}&category={{ current_category }}{% endif %}">Anterior</a></li>
-                    {% endif %}
-                    <li class="page-item disabled"><span class="page-link">Página {{ page_obj.number }} de {{ paginator.num_pages }}</span></li>
-                    {% if page_obj.has_next %}
-                        <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if current_category %}&category={{ current_category }}{% endif %}">Siguiente</a></li>
-                    {% endif %}
-                </ul>
+            <nav style="margin-top: 4rem; display: flex; justify-content: center; gap: 1rem; align-items: center;">
+                {% if page_obj.has_previous %}
+                    <a href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if current_category %}&category={{ current_category }}{% endif %}" class="btn btn-outline">Anterior</a>
+                {% endif %}
+                
+                <span style="font-weight: 600; color: var(--text-muted); font-size: 0.9rem;">
+                    {{ page_obj.number }} / {{ paginator.num_pages }}
+                </span>
+
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if current_category %}&category={{ current_category }}{% endif %}" class="btn btn-outline">Siguiente</a>
+                {% endif %}
             </nav>
             {% endif %}
 
         {% else %}
-            <div class="alert alert-info">No se encontraron noticias.</div>
+            <div style="padding: 3rem; background: var(--surface); border-radius: var(--radius); text-align: center; border: 1px dashed var(--border);">
+                <p style="color: var(--text-muted); font-weight: 500;">No encontramos lo que buscabas. Intenta con otros términos.</p>
+            </div>
         {% endif %}
-    </div>
+    </section>
 </div>
 {% endblock %}
