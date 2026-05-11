@@ -24,6 +24,22 @@
         {{ news.content|safe }}
     </div>
 
+    {% if news.images.all %}
+    <section class="news-gallery">
+        <h3 class="gallery-title">Galería de Imágenes</h3>
+        <div class="gallery-grid">
+            {% for news_image in news.images.all %}
+            <div class="gallery-item">
+                <img src="{{ news_image.image.url }}" alt="{{ news_image.caption|default:news.title }}" loading="lazy">
+                {% if news_image.caption %}
+                <div class="gallery-caption">{{ news_image.caption }}</div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
     <!-- Sección de Comentarios -->
     <section class="comments-section">
         <h3 style="font-size: 1.75rem; margin-bottom: 2rem; border-bottom: 2px solid var(--primary); display: inline-block; padding-bottom: 0.5rem;">

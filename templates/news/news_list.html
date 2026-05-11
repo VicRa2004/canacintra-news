@@ -3,7 +3,42 @@
 {% block title %}Inicio - Canacintra News{% endblock %}
 
 {% block content %}
-<div style="display: grid; grid-template-columns: 280px 1fr; gap: 3rem;">
+{% if not current_category and not query and carousel_news %}
+<section class="carousel-container">
+    <div class="carousel-track">
+        {% for news in carousel_news %}
+        <div class="carousel-slide {% if forloop.first %}active{% endif %}" data-index="{{ forloop.counter0 }}">
+            <div class="carousel-image-wrapper">
+                {% if news.image %}
+                    <img src="{{ news.image.url }}" alt="{{ news.title }}">
+                {% else %}
+                    <div class="carousel-placeholder">SINFOTO</div>
+                {% endif %}
+            </div>
+            <div class="carousel-content">
+                <span class="badge">{{ news.category.name }}</span>
+                <h2 class="carousel-title">{{ news.title }}</h2>
+                <p class="carousel-excerpt">{{ news.content|striptags|truncatewords:25 }}</p>
+                <a href="{% url 'news_detail' news.slug %}" class="btn btn-primary">Leer más</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <div class="carousel-nav">
+        <button class="carousel-btn prev" id="carouselPrev">&larr;</button>
+        <button class="carousel-btn next" id="carouselNext">&rarr;</button>
+    </div>
+
+    <div class="carousel-indicators">
+        {% for news in carousel_news %}
+        <button class="indicator {% if forloop.first %}active{% endif %}" data-index="{{ forloop.counter0 }}"></button>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+<div style="display: grid; grid-template-columns: 280px 1fr; gap: 3rem; margin-top: 2rem;">
     <!-- Sidebar: Categorías -->
     <aside>
         <div style="position: sticky; top: 100px;">
@@ -91,4 +126,49 @@
         {% endif %}
     </section>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const slides = document.querySelectorAll('.carousel-slide');
+    const indicators = document.querySelectorAll('.indicator');
+    const prevBtn = document.getElementById('carouselPrev');
+    const nextBtn = document.getElementById('carouselNext');
+    let currentSlide = 0;
+    const slideInterval = 5000;
+
+    function showSlide(index) {
+        if (!slides.length) return;
+        slides.forEach(s => s.classList.remove('active'));
+        indicators.forEach(i => i.classList.remove('active'));
+        
+        currentSlide = (index + slides.length) % slides.length;
+        
+        slides[currentSlide].classList.add('active');
+        indicators[currentSlide].classList.add('active');
+    }
+
+    if (prevBtn && nextBtn) {
+        prevBtn.addEventListener('click', () => showSlide(currentSlide - 1));
+        nextBtn.addEventListener('click', () => showSlide(currentSlide + 1));
+        
+        indicators.forEach((indicator, index) => {
+            indicator.addEventListener('click', () => showSlide(index));
+        });
+
+        // Auto slide
+        let autoSlide = setInterval(() => showSlide(currentSlide + 1), slideInterval);
+
+        // Pause auto slide on hover
+        const carousel = document.querySelector('.carousel-container');
+        if (carousel) {
+            carousel.addEventListener('mouseenter', () => clearInterval(autoSlide));
+            carousel.addEventListener('mouseleave', () => {
+                autoSlide = setInterval(() => showSlide(currentSlide + 1), slideInterval);
+            });
+        }
+    }
+});
+</script>
 {% endblock %}

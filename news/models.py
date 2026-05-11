@@ -53,3 +53,16 @@ class Comment(models.Model):
 
     def __str__(self):
         return f'Comment by {self.user.username} on {self.news.title}'
+class NewsImage(models.Model):
+    news = models.ForeignKey(News, on_delete=models.CASCADE, related_name='images')
+    image = models.ImageField(upload_to='news_gallery/')
+    caption = models.CharField(max_length=200, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Imagen de Galería"
+        verbose_name_plural = "Galería de Imágenes"
+        ordering = ['created_at']
+
+    def __str__(self):
+        return f"Imagen para {self.news.title}"

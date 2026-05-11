@@ -374,6 +374,80 @@ img {
     margin-bottom: 3rem;
 }
 
+/* News Gallery */
+.news-gallery {
+    max-width: 800px;
+    margin: 4rem auto;
+    padding-top: 3rem;
+    border-top: 1px solid var(--border);
+}
+
+.gallery-title {
+    font-size: 1.75rem;
+    margin-bottom: 2rem;
+    text-align: center;
+    color: var(--text-main);
+    letter-spacing: -0.02em;
+}
+
+.gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1.5rem;
+}
+
+.gallery-item {
+    position: relative;
+    border-radius: var(--radius);
+    overflow: hidden;
+    aspect-ratio: 4 / 3;
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+    cursor: pointer;
+}
+
+.gallery-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.gallery-item:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+}
+
+.gallery-item:hover img {
+    transform: scale(1.1);
+}
+
+.gallery-caption {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 1rem;
+    background: linear-gradient(transparent, rgba(0,0,0,0.7));
+    color: white;
+    font-size: 0.85rem;
+    font-weight: 500;
+    opacity: 0;
+    transition: var(--transition);
+    transform: translateY(10px);
+}
+
+.gallery-item:hover .gallery-caption {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+@media (max-width: 640px) {
+    .gallery-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
 /* Comments */
 .comments-section {
     max-width: 800px;
@@ -446,3 +520,158 @@ img {
 .card:nth-child(2) { animation-delay: 0.2s; }
 .card:nth-child(3) { animation-delay: 0.3s; }
 .card:nth-child(4) { animation-delay: 0.4s; }
+
+/* Carousel Styles */
+.carousel-container {
+    position: relative;
+    width: 100%;
+    height: 500px;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-xl);
+    margin-bottom: 3rem;
+}
+
+.carousel-track {
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+.carousel-slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: opacity 0.8s ease-in-out;
+    display: flex;
+    align-items: center;
+    visibility: hidden;
+}
+
+.carousel-slide.active {
+    opacity: 1;
+    visibility: visible;
+    z-index: 10;
+}
+
+.carousel-image-wrapper {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+}
+
+.carousel-image-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: brightness(0.7);
+}
+
+.carousel-placeholder {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 2rem;
+    font-weight: 800;
+}
+
+.carousel-content {
+    padding: 4rem;
+    max-width: 600px;
+    color: white;
+    animation: fadeInUp 0.8s ease-out forwards;
+}
+
+.carousel-title {
+    font-size: 3.5rem;
+    margin: 1rem 0;
+    color: white;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+}
+
+.carousel-excerpt {
+    font-size: 1.1rem;
+    margin-bottom: 2rem;
+    opacity: 0.9;
+    text-shadow: 0 1px 5px rgba(0,0,0,0.3);
+}
+
+.carousel-nav {
+    position: absolute;
+    bottom: 2rem;
+    right: 4rem;
+    display: flex;
+    gap: 1rem;
+    z-index: 20;
+}
+
+.carousel-btn {
+    width: 3.5rem;
+    height: 3.5rem;
+    border-radius: var(--radius-full);
+    border: 1px solid rgba(255,255,255,0.3);
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(8px);
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.carousel-btn:hover {
+    background: white;
+    color: var(--primary);
+    transform: scale(1.1);
+}
+
+.carousel-indicators {
+    position: absolute;
+    bottom: 2.5rem;
+    left: 4rem;
+    display: flex;
+    gap: 0.75rem;
+    z-index: 20;
+}
+
+.indicator {
+    width: 2.5rem;
+    height: 4px;
+    border-radius: var(--radius-full);
+    background: rgba(255,255,255,0.3);
+    border: none;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.indicator.active {
+    background: white;
+    width: 4rem;
+}
+
+@media (max-width: 768px) {
+    .carousel-container {
+        height: 400px;
+    }
+    .carousel-content {
+        padding: 2rem;
+    }
+    .carousel-title {
+        font-size: 2rem;
+    }
+    .carousel-nav, .carousel-indicators {
+        display: none;
+    }
+}

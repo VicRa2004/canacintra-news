@@ -35,6 +35,7 @@ class NewsListView(ListView):
         context['categories'] = Category.objects.all()
         context['current_category'] = self.request.GET.get('category')
         context['query'] = self.request.GET.get('q')
+        context['carousel_news'] = News.objects.all()[:5]
         return context
 
 class NewsDetailView(DetailView):

@@ -1,11 +1,15 @@
 from django.contrib import admin
-from .models import Category, News, Comment
-from unfold.admin import ModelAdmin
+from .models import Category, News, Comment, NewsImage
+from unfold.admin import ModelAdmin, TabularInline
 
 @admin.register(Category)
 class CategoryAdmin(ModelAdmin):
     list_display = ('name', 'slug')
     prepopulated_fields = {'slug': ('name',)}
+
+class NewsImageInline(TabularInline):
+    model = NewsImage
+    extra = 3
 
 @admin.register(News)
 class NewsAdmin(ModelAdmin):
@@ -14,6 +18,7 @@ class NewsAdmin(ModelAdmin):
     search_fields = ('title', 'content')
     prepopulated_fields = {'slug': ('title',)}
     date_hierarchy = 'published_at'
+    inlines = [NewsImageInline]
 
 @admin.register(Comment)
 class CommentAdmin(ModelAdmin):
