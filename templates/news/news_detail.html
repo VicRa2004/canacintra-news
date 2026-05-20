@@ -3,21 +3,21 @@
 {% block title %}{{ news.title }} - Canacintra News{% endblock %}
 
 {% block content %}
-<article style="max-width: 900px; margin: 0 auto;">
+<article class="article-detail-container">
     <header class="article-header">
-        <div style="margin-bottom: 1rem;">
-            <span class="badge">{{ news.category.name }}</span>
-        </div>
+        <span class="badge" style="border-color: var(--accent); color: var(--accent);">{{ news.category.name }}</span>
         <h1 class="article-title">{{ news.title }}</h1>
-        <div style="display: flex; justify-content: center; align-items: center; gap: 1rem; color: var(--text-muted); font-weight: 500;">
+        <div class="article-meta">
             <span>Por <strong>{{ news.author.username }}</strong></span>
             <span>•</span>
-            <span>{{ news.published_at|date:"d F, Y" }}</span>
+            <span>{{ news.published_at|date:"d \d\e F, Y" }}</span>
         </div>
     </header>
 
     {% if news.image %}
-        <img src="{{ news.image.url }}" class="article-img" alt="{{ news.title }}" style="width: 100%;">
+    <div class="article-img-wrapper">
+        <img src="{{ news.image.url }}" class="article-img" alt="{{ news.title }}">
+    </div>
     {% endif %}
 
     <div class="article-content">
@@ -42,7 +42,7 @@
 
     <!-- Sección de Comentarios -->
     <section class="comments-section">
-        <h3 style="font-size: 1.75rem; margin-bottom: 2rem; border-bottom: 2px solid var(--primary); display: inline-block; padding-bottom: 0.5rem;">
+        <h3 class="comments-title">
             Comentarios ({{ comments.count }})
         </h3>
         
@@ -53,28 +53,28 @@
                     <span class="comment-user">{{ comment.user.username }}</span>
                     <span class="comment-date">{{ comment.created_at|timesince }} atrás</span>
                 </div>
-                <p style="color: #475569; font-size: 1.05rem;">{{ comment.content }}</p>
+                <p class="comment-content">{{ comment.content }}</p>
             </div>
             {% empty %}
-            <div style="padding: 2rem; background: var(--surface-muted); border-radius: var(--radius); text-align: center; color: var(--text-muted);">
-                Todavía no hay comentarios. Sé el primero en compartir tu opinión.
+            <div style="padding: 3rem 1rem; background: var(--surface-muted); border-radius: var(--radius); text-align: center; color: var(--text-muted); font-size: 0.95rem;">
+                Todavía no hay comentarios en esta historia. Sé el primero en compartir tu opinión.
             </div>
             {% endfor %}
         </div>
 
-        <div style="background: var(--surface); padding: 2.5rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); border: 1px solid var(--border);">
-            <h4 style="margin-bottom: 1.5rem;">Comparte tu opinión</h4>
+        <div class="comment-form-container">
+            <h4 class="comment-form-title">Comparte tu opinión</h4>
             {% if user.is_authenticated %}
             <form action="{% url 'add_comment' news.pk %}" method="post">
                 {% csrf_token %}
-                <div style="margin-bottom: 1.5rem;">
+                <div class="form-group">
                     {{ comment_form.content }}
                 </div>
                 <button type="submit" class="btn btn-primary" style="width: 100%;">Publicar comentario</button>
             </form>
             {% else %}
-            <div style="text-align: center; padding: 1rem;">
-                <p style="margin-bottom: 1.5rem;">Debes iniciar sesión para participar en la conversación.</p>
+            <div style="text-align: center; padding: 1rem 0;">
+                <p style="margin-bottom: 1.5rem; color: var(--text-muted); font-size: 0.95rem;">Debes iniciar sesión para participar en la conversación.</p>
                 <a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-outline">Iniciar Sesión</a>
             </div>
             {% endif %}
@@ -85,23 +85,23 @@
 
 {% block extra_css %}
 <style>
-    /* Estilos específicos para los campos del formulario de comentarios */
+    /* Estilos específicos para inyectar al campo de comentarios generado por Django */
     textarea {
         width: 100%;
-        padding: 1rem;
+        padding: 0.85rem 1.15rem;
         border-radius: var(--radius);
         border: 1px solid var(--border);
         font-family: inherit;
-        font-size: 1rem;
+        font-size: 0.95rem;
         min-height: 120px;
         transition: var(--transition);
-        background: var(--bg-main);
+        background: var(--surface);
+        color: var(--text-main);
     }
     textarea:focus {
         outline: none;
         border-color: var(--primary);
-        background: white;
-        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        box-shadow: 0 0 0 3px rgba(28, 58, 39, 0.05);
     }
 </style>
 {% endblock %}

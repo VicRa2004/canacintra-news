@@ -10,41 +10,64 @@
     {% block extra_css %}{% endblock %}
 </head>
 <body>
-    <header class="navbar">
-        <div class="container nav-content">
-            <a class="nav-brand" href="{% url 'news_list' %}">CANACINTRA <span style="color: var(--primary);">NEWS</span></a>
-            
-            <nav class="nav-links">
-                <a href="{% url 'news_list' %}" class="nav-link {% if request.resolver_match.url_name == 'news_list' %}active{% endif %}">Inicio</a>
-                
-                <form class="search-box" action="{% url 'news_list' %}" method="get">
-                    <input class="search-input" type="search" name="q" placeholder="Buscar historias..." value="{{ query|default:'' }}">
-                    <button class="search-btn" type="submit">Ir</button>
-                </form>
-
-                {% if user.is_authenticated %}
-                    <div class="user-menu" style="position: relative; display: flex; align-items: center; gap: 1rem;">
-                        <span class="nav-link" style="font-weight: 600;">{{ user.username }}</span>
-                        {% if user.is_staff %}
-                            <a href="{% url 'admin:index' %}" class="btn btn-outline" style="padding: 0.4rem 1rem; font-size: 0.85rem;">Admin</a>
-                        {% endif %}
-                        <form action="{% url 'logout' %}" method="post" style="display:inline;">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-primary" style="padding: 0.4rem 1rem; font-size: 0.85rem;">Salir</button>
-                        </form>
-                    </div>
-                {% else %}
-                    <a href="{% url 'login' %}" class="btn btn-primary">Iniciar Sesión</a>
-                {% endif %}
-            </nav>
+    <header class="masthead">
+        <div class="container">
+            <div class="masthead-top">
+                <div class="masthead-date">
+                    <span id="masthead-current-date"></span>
+                </div>
+                <div>
+                    {% if user.is_authenticated %}
+                        <span>Bienvenido, <strong>{{ user.username }}</strong></span>
+                    {% else %}
+                        <span>Cámara Nacional de la Industria de Transformación</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="masthead-logo-container">
+                <a class="masthead-brand" href="{% url 'news_list' %}">CANACINTRA <span>NEWS</span></a>
+            </div>
         </div>
     </header>
 
+    <nav class="navbar">
+        <div class="container nav-content">
+            <div class="nav-links">
+                <div class="nav-left-links">
+                    <a href="{% url 'news_list' %}" class="nav-link {% if request.resolver_match.url_name == 'news_list' %}active{% endif %}">Inicio</a>
+                </div>
+                
+                <div class="nav-right-actions">
+                    <form class="search-box" action="{% url 'news_list' %}" method="get">
+                        <input class="search-input" type="search" name="q" placeholder="Buscar historias..." value="{{ query|default:'' }}">
+                        <button class="search-btn" type="submit">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                        </button>
+                    </form>
+
+                    {% if user.is_authenticated %}
+                        <div class="user-menu">
+                            {% if user.is_staff %}
+                                <a href="{% url 'admin:index' %}" class="btn btn-outline" style="padding: 0.4rem 1rem; font-size: 0.75rem;">Admin</a>
+                            {% endif %}
+                            <form action="{% url 'logout' %}" method="post" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-primary" style="padding: 0.4rem 1rem; font-size: 0.75rem;">Salir</button>
+                            </form>
+                        </div>
+                    {% else %}
+                        <a href="{% url 'login' %}" class="btn btn-primary" style="padding: 0.4rem 1rem; font-size: 0.75rem;">Iniciar Sesión</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
     <main class="container section">
         {% if messages %}
-            <div class="messages" style="margin-bottom: 2rem;">
+            <div class="messages" style="margin-bottom: 2.5rem;">
                 {% for message in messages %}
-                    <div class="alert alert-{{ message.tags }}" style="padding: 1rem; border-radius: var(--radius); background: #e0f2fe; color: #0369a1; border-left: 4px solid var(--primary); margin-bottom: 0.5rem;">
+                    <div class="alert alert-{{ message.tags }}">
                         {{ message }}
                     </div>
                 {% endfor %}
@@ -55,13 +78,38 @@
 
     <footer class="footer">
         <div class="container">
-            <p>&copy; 2026 Canacintra News. Una experiencia premium de noticias.</p>
-            <div style="margin-top: 1rem; opacity: 0.6; font-size: 0.8rem;">
-                Hecho con pasión por el diseño.
+            <div class="footer-content">
+                <div>
+                    <a class="footer-brand" href="{% url 'news_list' %}">CANACINTRA <span>NEWS</span></a>
+                    <p class="footer-tagline">Cámara Nacional de la Industria de Transformación</p>
+                </div>
+                <div class="footer-links">
+                    <a href="{% url 'news_list' %}" class="footer-link">Inicio</a>
+                    {% if not user.is_authenticated %}
+                        <a href="{% url 'login' %}" class="footer-link">Iniciar Sesión</a>
+                        <a href="{% url 'signup' %}" class="footer-link">Registrarse</a>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Canacintra News. Todos los derechos reservados.</p>
+                <p>Diseño Editorial de Vanguardia</p>
             </div>
         </div>
     </footer>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const dateEl = document.getElementById('masthead-current-date');
+            if (dateEl) {
+                const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                const today = new Date();
+                let dateStr = today.toLocaleDateString('es-ES', options);
+                dateStr = dateStr.charAt(0).toUpperCase() + dateStr.slice(1);
+                dateEl.textContent = dateStr;
+            }
+        });
+    </script>
     {% block extra_js %}{% endblock %}
 </body>
 </html>

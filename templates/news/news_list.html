@@ -8,41 +8,42 @@
     <div class="carousel-track">
         {% for news in carousel_news %}
         <div class="carousel-slide {% if forloop.first %}active{% endif %}" data-index="{{ forloop.counter0 }}">
+            <div class="carousel-content-wrapper">
+                <div class="carousel-content">
+                    <span class="badge" style="border-color: var(--accent); color: var(--accent);">{{ news.category.name }}</span>
+                    <h2 class="carousel-title">{{ news.title }}</h2>
+                    <p class="carousel-excerpt">{{ news.content|striptags|truncatewords:25 }}</p>
+                    <a href="{% url 'news_detail' news.slug %}" class="btn btn-primary">Leer historia</a>
+                </div>
+            </div>
             <div class="carousel-image-wrapper">
                 {% if news.image %}
                     <img src="{{ news.image.url }}" alt="{{ news.title }}">
                 {% else %}
-                    <div class="carousel-placeholder">SINFOTO</div>
+                    <div class="carousel-placeholder">CANACINTRA</div>
                 {% endif %}
-            </div>
-            <div class="carousel-content">
-                <span class="badge">{{ news.category.name }}</span>
-                <h2 class="carousel-title">{{ news.title }}</h2>
-                <p class="carousel-excerpt">{{ news.content|striptags|truncatewords:25 }}</p>
-                <a href="{% url 'news_detail' news.slug %}" class="btn btn-primary">Leer más</a>
             </div>
         </div>
         {% endfor %}
     </div>
     
-    <div class="carousel-nav">
-        <button class="carousel-btn prev" id="carouselPrev">&larr;</button>
-        <button class="carousel-btn next" id="carouselNext">&rarr;</button>
-    </div>
-
-    <div class="carousel-indicators">
-        {% for news in carousel_news %}
-        <button class="indicator {% if forloop.first %}active{% endif %}" data-index="{{ forloop.counter0 }}"></button>
-        {% endfor %}
+    <div class="carousel-nav-container">
+        <div class="carousel-nav-info">
+            <span class="current" id="carouselCurrent">01</span> / <span id="carouselTotal">05</span>
+        </div>
+        <div class="carousel-btns">
+            <button class="carousel-btn prev" id="carouselPrev" aria-label="Anterior">&larr;</button>
+            <button class="carousel-btn next" id="carouselNext" aria-label="Siguiente">&rarr;</button>
+        </div>
     </div>
 </section>
 {% endif %}
 
-<div style="display: grid; grid-template-columns: 280px 1fr; gap: 3rem; margin-top: 2rem;">
+<div class="magazine-layout">
     <!-- Sidebar: Categorías -->
     <aside>
         <div style="position: sticky; top: 100px;">
-            <h3 style="font-size: 1.1rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 1.5rem;">Categorías</h3>
+            <h3 class="sidebar-title">Secciones</h3>
             <ul class="sidebar-list">
                 <li class="sidebar-item">
                     <a href="{% url 'news_list' %}" class="sidebar-link {% if not current_category %}active{% endif %}">
@@ -53,7 +54,7 @@
                 <li class="sidebar-item">
                     <a href="{% url 'news_list' %}?category={{ category.slug }}{% if query %}&q={{ query }}{% endif %}" 
                        class="sidebar-link {% if current_category == category.slug %}active{% endif %}">
-                        {{ category.name }}
+                        <span>{{ category.name }}</span>
                     </a>
                 </li>
                 {% endfor %}
@@ -63,14 +64,14 @@
 
     <!-- Main Content: Noticias -->
     <section>
-        <header style="margin-bottom: 2.5rem;">
-            <h2 style="font-size: 2.25rem; letter-spacing: -0.02em;">
+        <header style="margin-bottom: 2.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border);">
+            <h2 style="font-family: 'Cormorant Garamond', Georgia, serif; font-size: 2.5rem; font-weight: 600; color: var(--primary);">
                 {% if query %}
-                    Resultados para <span style="color: var(--primary);">"{{ query }}"</span>
+                    Resultados para <span style="font-style: italic; color: var(--accent);">"{{ query }}"</span>
                 {% elif current_category %}
-                    Historias en <span style="color: var(--primary);">{{ current_category }}</span>
+                    Noticias en <span style="font-style: italic; color: var(--accent);">{{ current_category }}</span>
                 {% else %}
-                    Últimas <span style="color: var(--primary);">Historias</span>
+                    Edición de <span style="font-style: italic; color: var(--accent);">Hoy</span>
                 {% endif %}
             </h2>
         </header>
@@ -79,13 +80,15 @@
             <div class="grid grid-cols-2">
                 {% for news in news_list %}
                 <article class="card">
-                    {% if news.image %}
-                        <img src="{{ news.image.url }}" class="card-img" alt="{{ news.title }}">
-                    {% else %}
-                        <div style="height: 200px; background: linear-gradient(45deg, var(--surface-muted), var(--bg-main)); display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-size: 0.8rem; font-weight: 600;">
-                            SINFOTO
-                        </div>
-                    {% endif %}
+                    <div class="card-img-wrapper">
+                        {% if news.image %}
+                            <img src="{{ news.image.url }}" class="card-img" alt="{{ news.title }}">
+                        {% else %}
+                            <div style="height: 100%; display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-size: 0.85rem; font-weight: 600; font-family: 'Cormorant Garamond', serif; letter-spacing: 0.1em; background-color: var(--surface-muted);">
+                                CANACINTRA NEWS
+                            </div>
+                        {% endif %}
+                    </div>
                     <div class="card-body">
                         <div class="card-meta">
                             <span class="badge">{{ news.category.name }}</span>
@@ -94,9 +97,7 @@
                         </div>
                         <h3 class="card-title">{{ news.title }}</h3>
                         <p class="card-text">{{ news.content|striptags|truncatewords:20 }}</p>
-                        <div style="margin-top: auto;">
-                            <a href="{% url 'news_detail' news.slug %}" class="btn btn-outline" style="width: 100%;">Leer Historia</a>
-                        </div>
+                        <a href="{% url 'news_detail' news.slug %}" class="card-footer-link">Leer más</a>
                     </div>
                 </article>
                 {% endfor %}
@@ -104,12 +105,12 @@
 
             <!-- Paginación -->
             {% if is_paginated %}
-            <nav style="margin-top: 4rem; display: flex; justify-content: center; gap: 1rem; align-items: center;">
+            <nav class="pagination">
                 {% if page_obj.has_previous %}
                     <a href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if current_category %}&category={{ current_category }}{% endif %}" class="btn btn-outline">Anterior</a>
                 {% endif %}
                 
-                <span style="font-weight: 600; color: var(--text-muted); font-size: 0.9rem;">
+                <span class="pagination-text">
                     {{ page_obj.number }} / {{ paginator.num_pages }}
                 </span>
 
@@ -120,8 +121,9 @@
             {% endif %}
 
         {% else %}
-            <div style="padding: 3rem; background: var(--surface); border-radius: var(--radius); text-align: center; border: 1px dashed var(--border);">
-                <p style="color: var(--text-muted); font-weight: 500;">No encontramos lo que buscabas. Intenta con otros términos.</p>
+            <div style="padding: 4rem 2rem; background: var(--surface); border-radius: var(--radius); text-align: center; border: 1px dashed var(--border);">
+                <p style="color: var(--text-muted); font-size: 1rem; font-weight: 500;">No encontramos noticias en esta sección por el momento.</p>
+                <a href="{% url 'news_list' %}" class="btn btn-primary" style="margin-top: 1.5rem;">Volver al Inicio</a>
             </div>
         {% endif %}
     </section>
@@ -132,30 +134,34 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const slides = document.querySelectorAll('.carousel-slide');
-    const indicators = document.querySelectorAll('.indicator');
     const prevBtn = document.getElementById('carouselPrev');
     const nextBtn = document.getElementById('carouselNext');
+    const currentEl = document.getElementById('carouselCurrent');
+    const totalEl = document.getElementById('carouselTotal');
     let currentSlide = 0;
-    const slideInterval = 5000;
+    const slideInterval = 6000;
+
+    if (slides.length > 0) {
+        if (totalEl) {
+            totalEl.textContent = String(slides.length).padStart(2, '0');
+        }
+    }
 
     function showSlide(index) {
         if (!slides.length) return;
         slides.forEach(s => s.classList.remove('active'));
-        indicators.forEach(i => i.classList.remove('active'));
         
         currentSlide = (index + slides.length) % slides.length;
         
         slides[currentSlide].classList.add('active');
-        indicators[currentSlide].classList.add('active');
+        if (currentEl) {
+            currentEl.textContent = String(currentSlide + 1).padStart(2, '0');
+        }
     }
 
     if (prevBtn && nextBtn) {
         prevBtn.addEventListener('click', () => showSlide(currentSlide - 1));
         nextBtn.addEventListener('click', () => showSlide(currentSlide + 1));
-        
-        indicators.forEach((indicator, index) => {
-            indicator.addEventListener('click', () => showSlide(index));
-        });
 
         // Auto slide
         let autoSlide = setInterval(() => showSlide(currentSlide + 1), slideInterval);
