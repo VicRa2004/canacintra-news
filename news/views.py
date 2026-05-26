@@ -47,6 +47,9 @@ class NewsDetailView(DetailView):
         context = super().get_context_data(**kwargs)
         context['comment_form'] = CommentForm()
         context['comments'] = self.object.comments.filter(is_approved=True)
+        context['related_news'] = News.objects.filter(
+            category=self.object.category
+        ).exclude(pk=self.object.pk).order_by('-published_at')[:4]
         return context
 
 from django.contrib import messages

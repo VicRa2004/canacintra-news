@@ -20,67 +20,116 @@
     </div>
     {% endif %}
 
-    <div class="article-content">
-        {{ news.content|safe }}
-    </div>
-
-    {% if news.images.all %}
-    <section class="news-gallery">
-        <h3 class="gallery-title">Galería de Imágenes</h3>
-        <div class="gallery-grid">
-            {% for news_image in news.images.all %}
-            <div class="gallery-item">
-                <img src="{{ news_image.image.url }}" alt="{{ news_image.caption|default:news.title }}" loading="lazy">
-                {% if news_image.caption %}
-                <div class="gallery-caption">{{ news_image.caption }}</div>
-                {% endif %}
+    <div class="article-detail-layout">
+        <!-- Columna principal (Artículo, galería y comentarios) -->
+        <div class="article-main-content">
+            <div class="article-content">
+                {{ news.content|safe }}
             </div>
-            {% endfor %}
-        </div>
-    </section>
-    {% endif %}
 
-    <!-- Sección de Comentarios -->
-    <section class="comments-section">
-        <h3 class="comments-title">
-            Comentarios ({{ comments.count }})
-        </h3>
-        
-        <div style="margin-bottom: 3rem;">
-            {% for comment in comments %}
-            <div class="comment-card">
-                <div class="comment-header">
-                    <span class="comment-user">{{ comment.user.username }}</span>
-                    <span class="comment-date">{{ comment.created_at|timesince }} atrás</span>
+            {% if news.images.all %}
+            <section class="news-gallery">
+                <h3 class="gallery-title">Galería de Imágenes</h3>
+                <div class="gallery-carousel-wrapper">
+                    <button class="carousel-control prev" aria-label="Desplazar a la izquierda">&#10094;</button>
+                    <div class="gallery-carousel">
+                        {% for news_image in news.images.all %}
+                        <div class="gallery-item" data-index="{{ forloop.counter0 }}">
+                            <img src="{{ news_image.image.url }}" alt="{{ news_image.caption|default:news.title }}" loading="lazy">
+                            <div class="gallery-overlay">
+                                <span class="zoom-icon">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
+                                </span>
+                                {% if news_image.caption %}
+                                <div class="gallery-caption">{{ news_image.caption }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <button class="carousel-control next" aria-label="Desplazar a la derecha">&#10095;</button>
                 </div>
-                <p class="comment-content">{{ comment.content }}</p>
-            </div>
-            {% empty %}
-            <div style="padding: 3rem 1rem; background: var(--surface-muted); border-radius: var(--radius); text-align: center; color: var(--text-muted); font-size: 0.95rem;">
-                Todavía no hay comentarios en esta historia. Sé el primero en compartir tu opinión.
-            </div>
-            {% endfor %}
-        </div>
-
-        <div class="comment-form-container">
-            <h4 class="comment-form-title">Comparte tu opinión</h4>
-            {% if user.is_authenticated %}
-            <form action="{% url 'add_comment' news.pk %}" method="post">
-                {% csrf_token %}
-                <div class="form-group">
-                    {{ comment_form.content }}
-                </div>
-                <button type="submit" class="btn btn-primary" style="width: 100%;">Publicar comentario</button>
-            </form>
-            {% else %}
-            <div style="text-align: center; padding: 1rem 0;">
-                <p style="margin-bottom: 1.5rem; color: var(--text-muted); font-size: 0.95rem;">Debes iniciar sesión para participar en la conversación.</p>
-                <a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-outline">Iniciar Sesión</a>
-            </div>
+            </section>
             {% endif %}
+
+            <!-- Sección de Comentarios -->
+            <section class="comments-section">
+                <h3 class="comments-title">
+                    Comentarios ({{ comments.count }})
+                </h3>
+                
+                <div style="margin-bottom: 3rem;">
+                    {% for comment in comments %}
+                    <div class="comment-card">
+                        <div class="comment-header">
+                            <span class="comment-user">{{ comment.user.username }}</span>
+                            <span class="comment-date">{{ comment.created_at|timesince }} atrás</span>
+                        </div>
+                        <p class="comment-content">{{ comment.content }}</p>
+                    </div>
+                    {% empty %}
+                    <div style="padding: 3rem 1rem; background: var(--surface-muted); border-radius: var(--radius); text-align: center; color: var(--text-muted); font-size: 0.95rem;">
+                        Todavía no hay comentarios en esta historia. Sé el primero en compartir tu opinión.
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <div class="comment-form-container">
+                    <h4 class="comment-form-title">Comparte tu opinión</h4>
+                    {% if user.is_authenticated %}
+                    <form action="{% url 'add_comment' news.pk %}" method="post">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            {{ comment_form.content }}
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="width: 100%;">Publicar comentario</button>
+                    </form>
+                    {% else %}
+                    <div style="text-align: center; padding: 1rem 0;">
+                        <p style="margin-bottom: 1.5rem; color: var(--text-muted); font-size: 0.95rem;">Debes iniciar sesión para participar en la conversación.</p>
+                        <a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-outline">Iniciar Sesión</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </section>
         </div>
-    </section>
+
+        <!-- Barra lateral (Noticias relacionadas) -->
+        <aside class="article-sidebar">
+            <div class="sidebar-widget related-news-widget">
+                <h3 class="sidebar-title">Noticias Relacionadas</h3>
+                <div class="related-news-list">
+                    {% for item in related_news %}
+                    <a href="{% url 'news_detail' item.slug %}" class="related-news-card">
+                        {% if item.image %}
+                        <div class="related-card-img-wrapper">
+                            <img src="{{ item.image.url }}" alt="{{ item.title }}" class="related-card-img">
+                        </div>
+                        {% endif %}
+                        <div class="related-card-body">
+                            <span class="related-card-date">{{ item.published_at|date:"d \d\e M, Y" }}</span>
+                            <h4 class="related-card-title">{{ item.title }}</h4>
+                        </div>
+                    </a>
+                    {% empty %}
+                    <p class="no-related-news">No hay otras noticias en esta categoría.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </aside>
+    </div>
 </article>
+
+<!-- Modal de Lightbox para la Galería -->
+<div id="lightboxModal" class="lightbox-modal">
+    <span class="lightbox-close">&times;</span>
+    <button class="lightbox-nav lightbox-prev" aria-label="Imagen anterior">&#10094;</button>
+    <button class="lightbox-nav lightbox-next" aria-label="Imagen siguiente">&#10095;</button>
+    <div class="lightbox-content-wrapper">
+        <img id="lightboxImg" class="lightbox-img" src="" alt="">
+        <div id="lightboxCaption" class="lightbox-caption-text"></div>
+    </div>
+</div>
 {% endblock %}
 
 {% block extra_css %}
@@ -104,4 +153,147 @@
         box-shadow: 0 0 0 3px rgba(28, 58, 39, 0.05);
     }
 </style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const galleryItems = document.querySelectorAll('.gallery-item');
+        const lightbox = document.getElementById('lightboxModal');
+        const lightboxImg = document.getElementById('lightboxImg');
+        const lightboxCaption = document.getElementById('lightboxCaption');
+        const closeBtn = document.querySelector('.lightbox-close');
+        const prevBtn = document.querySelector('.lightbox-prev');
+        const nextBtn = document.querySelector('.lightbox-next');
+        
+        let currentIndex = 0;
+        const images = [];
+
+        // Obtener información de todas las imágenes
+        galleryItems.forEach((item, index) => {
+            const img = item.querySelector('img');
+            const captionDiv = item.querySelector('.gallery-caption');
+            images.push({
+                src: img.src,
+                alt: img.alt,
+                caption: captionDiv ? captionDiv.textContent.trim() : ''
+            });
+
+            item.addEventListener('click', () => {
+                currentIndex = index;
+                openLightbox();
+            });
+        });
+
+        function openLightbox() {
+            if (images.length === 0) return;
+            lightbox.classList.add('active');
+            document.body.style.overflow = 'hidden'; // Bloquear scroll de la página
+            updateLightboxImage();
+        }
+
+        function closeLightbox() {
+            lightbox.classList.remove('active');
+            document.body.style.overflow = ''; // Restaurar scroll
+        }
+
+        function updateLightboxImage() {
+            const currentData = images[currentIndex];
+            lightboxImg.src = currentData.src;
+            lightboxImg.alt = currentData.alt;
+            lightboxCaption.textContent = currentData.caption;
+            
+            if (images.length <= 1) {
+                prevBtn.style.display = 'none';
+                nextBtn.style.display = 'none';
+            } else {
+                prevBtn.style.display = 'flex';
+                nextBtn.style.display = 'flex';
+            }
+        }
+
+        function showNext() {
+            currentIndex = (currentIndex + 1) % images.length;
+            updateLightboxImage();
+        }
+
+        function showPrev() {
+            currentIndex = (currentIndex - 1 + images.length) % images.length;
+            updateLightboxImage();
+        }
+
+        closeBtn.addEventListener('click', closeLightbox);
+        nextBtn.addEventListener('click', showNext);
+        prevBtn.addEventListener('click', showPrev);
+
+        lightbox.addEventListener('click', (e) => {
+            if (e.target === lightbox || e.target.classList.contains('lightbox-content-wrapper')) {
+                closeLightbox();
+            }
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (!lightbox.classList.contains('active')) return;
+            
+            if (e.key === 'Escape') {
+                closeLightbox();
+            } else if (e.key === 'ArrowRight') {
+                showNext();
+            } else if (e.key === 'ArrowLeft') {
+                showPrev();
+            }
+        });
+
+        // Controles para el minicarrusel de la galería
+        const carousel = document.querySelector('.gallery-carousel');
+        const prevCarouselBtn = document.querySelector('.carousel-control.prev');
+        const nextCarouselBtn = document.querySelector('.carousel-control.next');
+
+        if (carousel && prevCarouselBtn && nextCarouselBtn) {
+            const scrollAmount = 320; // Ajustado para avanzar una tarjeta completa más gap
+
+            prevCarouselBtn.addEventListener('click', () => {
+                carousel.scrollBy({
+                    left: -scrollAmount,
+                    behavior: 'smooth'
+                });
+            });
+
+            nextCarouselBtn.addEventListener('click', () => {
+                carousel.scrollBy({
+                    left: scrollAmount,
+                    behavior: 'smooth'
+                });
+            });
+
+            const toggleArrows = () => {
+                const maxScrollLeft = carousel.scrollWidth - carousel.clientWidth;
+                
+                // Mostrar u ocultar la flecha previa
+                if (carousel.scrollLeft <= 10) {
+                    prevCarouselBtn.style.opacity = '0';
+                    prevCarouselBtn.style.pointerEvents = 'none';
+                } else {
+                    prevCarouselBtn.style.opacity = '1';
+                    prevCarouselBtn.style.pointerEvents = 'auto';
+                }
+
+                // Mostrar u ocultar la flecha siguiente
+                if (carousel.scrollLeft >= maxScrollLeft - 10) {
+                    nextCarouselBtn.style.opacity = '0';
+                    nextCarouselBtn.style.pointerEvents = 'none';
+                } else {
+                    nextCarouselBtn.style.opacity = '1';
+                    nextCarouselBtn.style.pointerEvents = 'auto';
+                }
+            };
+
+            carousel.addEventListener('scroll', toggleArrows);
+            window.addEventListener('resize', toggleArrows);
+            
+            // Un pequeño delay para esperar a que las imágenes estén renderizadas y calculadas
+            setTimeout(toggleArrows, 300);
+        }
+    });
+</script>
 {% endblock %}

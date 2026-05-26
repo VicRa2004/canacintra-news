@@ -206,6 +206,9 @@ UNFOLD = {
     "SITE_HEADER": "Canacintra News",
     "SITE_SYMBOL": "speed",  # icon from material symbols
     "THEME": "light",
+    "SCRIPTS": [
+        "/static/js/admin_file_upload.js",
+    ],
     "COLORS": {
         "primary": {
             "50": "249 250 251",
