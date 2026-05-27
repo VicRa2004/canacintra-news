@@ -1,6 +1,6 @@
-# 📰 Canacintra-2 Portal de Noticias
+# 📰 Blogy Portal de Noticias
 
-¡Bienvenido al repositorio de **Canacintra-2**! Este proyecto es un moderno y robusto portal de noticias desarrollado con **Django**. El sistema está diseñado para la gestión de categorías, publicación de artículos informativos, comentarios interactivos, búsquedas dinámicas y una administración moderna y visualmente atractiva.
+¡Bienvenido al repositorio de **Blogy**! Este proyecto es un moderno y robusto portal de noticias desarrollado con **Django**. El sistema está diseñado para la gestión de categorías, publicación de artículos informativos, comentarios interactivos, búsquedas dinámicas y una administración moderna y visualmente atractiva.
 
 ---
 
@@ -32,7 +32,7 @@
 El proyecto está organizado de la siguiente manera:
 
 ```text
-canacintra-web/
+blogy-web/
 │
 ├── core/                  # Configuración principal del proyecto Django (settings, urls, etc.)
 ├── news/                  # Aplicación de noticias (modelos, vistas, formularios, URLs)
@@ -158,4 +158,4 @@ El portal estará disponible en tu navegador en:
 | **Cargar datos de prueba** | `python seed_data.py` |
 
 ---
-*Desarrollado para la gestión informativa del portal Canacintra.*
+*Desarrollado para la gestión informativa del portal Blogy.*

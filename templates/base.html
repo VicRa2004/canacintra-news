@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Canacintra News{% endblock %}</title>
+    <title>{% block title %}Blogy{% endblock %}</title>
     <!-- Modern CSS System -->
     <link rel="stylesheet" href="{% static 'css/main.css' %}">
     {% block extra_css %}{% endblock %}
@@ -20,12 +20,12 @@
                     {% if user.is_authenticated %}
                         <span>Bienvenido, <strong>{{ user.username }}</strong></span>
                     {% else %}
-                        <span>Cámara Nacional de la Industria de Transformación</span>
+                        <span>El portal del conocimiento compartido</span>
                     {% endif %}
                 </div>
             </div>
             <div class="masthead-logo-container">
-                <a class="masthead-brand" href="{% url 'news_list' %}">CANACINTRA <span>NEWS</span></a>
+                <a class="masthead-brand" href="{% url 'news_list' %}">BLOGY</a>
             </div>
         </div>
     </header>
@@ -80,8 +80,8 @@
         <div class="container">
             <div class="footer-content">
                 <div>
-                    <a class="footer-brand" href="{% url 'news_list' %}">CANACINTRA <span>NEWS</span></a>
-                    <p class="footer-tagline">Cámara Nacional de la Industria de Transformación</p>
+                    <a class="footer-brand" href="{% url 'news_list' %}">BLOGY</a>
+                    <p class="footer-tagline">El pulso de la información y la opinión</p>
                 </div>
                 <div class="footer-links">
                     <a href="{% url 'news_list' %}" class="footer-link">Inicio</a>
@@ -92,7 +92,7 @@
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>&copy; 2026 Canacintra News. Todos los derechos reservados.</p>
+                <p>&copy; 2026 Blogy. Todos los derechos reservados.</p>
                 <p>Diseño Editorial de Vanguardia</p>
             </div>
         </div>

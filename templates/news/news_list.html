@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}Inicio - Canacintra News{% endblock %}
+{% block title %}Inicio - Blogy{% endblock %}
 
 {% block content %}
 {% if not current_category and not query and carousel_news %}
@@ -20,7 +20,7 @@
                 {% if news.image %}
                     <img src="{{ news.image.url }}" alt="{{ news.title }}">
                 {% else %}
-                    <div class="carousel-placeholder">CANACINTRA</div>
+                    <div class="carousel-placeholder">BLOGY</div>
                 {% endif %}
             </div>
         </div>
@@ -85,7 +85,7 @@
                             <img src="{{ news.image.url }}" class="card-img" alt="{{ news.title }}">
                         {% else %}
                             <div style="height: 100%; display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-size: 0.85rem; font-weight: 600; font-family: 'Cormorant Garamond', serif; letter-spacing: 0.1em; background-color: var(--surface-muted);">
-                                CANACINTRA NEWS
+                                BLOGY
                             </div>
                         {% endif %}
                     </div>

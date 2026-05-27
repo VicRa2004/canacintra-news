@@ -1,10 +1,10 @@
-# Guía de Agentes - Canacintra-2
+# Guía de Agentes - Blogy
 
 Este documento es una guía rápida para que cualquier agente de IA o desarrollador pueda entender y colaborar en este proyecto de forma eficiente.
 
 ## 🚀 Descripción del Proyecto
 
-**Canacintra-2** es un portal de noticias desarrollado con **Django**. Permite la gestión de categorías, artículos de noticias, búsqueda y comentarios.
+**Blogy** es un portal de noticias desarrollado con **Django**. Permite la gestión de categorías, artículos de noticias, búsqueda y comentarios.
 
 ## 🛠️ Stack Tecnológico
 

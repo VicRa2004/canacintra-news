@@ -202,8 +202,8 @@ CKEDITOR_5_CONFIGS = {
 
 # UNFOLD Admin Configuration
 UNFOLD = {
-    "SITE_TITLE": "Canacintra News Admin",
-    "SITE_HEADER": "Canacintra News",
+    "SITE_TITLE": "Blogy Admin",
+    "SITE_HEADER": "Blogy",
     "SITE_SYMBOL": "speed",  # icon from material symbols
     "THEME": "light",
     "SCRIPTS": [
