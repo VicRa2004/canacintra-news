@@ -1,0 +1,413 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Control - Canacintra News</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- CSS del Dashboard -->
+    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+</head>
+<body class="dashboard-body" data-theme="light">
+    
+    <!-- Toast Notifications Container -->
+    <div id="toast-container" class="toast-container"></div>
+    
+    <!-- Django Messages Hidden Bridge -->
+    {% if messages %}
+        <div style="display: none;">
+            {% for message in messages %}
+                <span class="django-message" data-tags="{{ message.tags }}">{{ message }}</span>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <div class="dashboard-container">
+        
+        <!-- SIDEBAR -->
+        <aside class="dashboard-sidebar">
+            <div class="sidebar-brand">
+                <div class="brand-icon">CN</div>
+                <div class="brand-name">Canacintra News</div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <div class="nav-item active" data-tab="overview">
+                    <span class="material-icons">dashboard</span>
+                    <span>Vista General</span>
+                </div>
+                <div class="nav-item" data-tab="news">
+                    <span class="material-icons">article</span>
+                    <span>Artículos</span>
+                </div>
+                <div class="nav-item" data-tab="comments">
+                    <span class="material-icons">chat_bubble</span>
+                    <span>Comentarios 
+                        {% if pending_comments > 0 %}
+                            <span class="badge-pill badge-warning badge-pending-count" style="margin-left: auto;">{{ pending_comments }}</span>
+                        {% endif %}
+                    </span>
+                </div>
+                <div class="nav-item" data-tab="categories">
+                    <span class="material-icons">category</span>
+                    <span>Categorías</span>
+                </div>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <a href="{% url 'news_list' %}" class="nav-item" style="margin-bottom: 0.5rem; border: 1px dashed var(--border-color);">
+                    <span class="material-icons">arrow_back</span>
+                    <span>Volver al Portal</span>
+                </a>
+                
+                <div class="user-profile">
+                    <div class="user-avatar">
+                        {{ request.user.username|slice:":2"|upper }}
+                    </div>
+                    <div class="user-info">
+                        <span class="user-name">{{ request.user.username }}</span>
+                        <span class="user-role">Administrador</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+        
+        <!-- MAIN CONTENT -->
+        <main class="dashboard-main">
+            
+            <!-- HEADER -->
+            <header class="dashboard-header">
+                <div class="header-title-area">
+                    <h1>Panel de Control</h1>
+                    <p>Gestiona contenidos, modera comentarios y analiza la actividad.</p>
+                </div>
+                
+                <div class="header-actions">
+                    <button class="theme-toggle-btn" id="theme-toggle" title="Cambiar Tema">
+                        <span class="material-icons">dark_mode</span>
+                    </button>
+                    <a href="{% url 'dashboard_news_create' %}" class="btn-premium btn-primary">
+                        <span class="material-icons">add</span>
+                        <span>Nuevo Artículo</span>
+                    </a>
+                </div>
+            </header>
+            
+            <!-- SECCIÓN 1: VISTA GENERAL -->
+            <section id="section-overview" class="dashboard-section active">
+                <!-- Tarjetas de Estadísticas -->
+                <div class="stats-grid">
+                    <div class="stat-card stat-news">
+                        <div class="stat-info">
+                            <span class="stat-value">{{ total_news }}</span>
+                            <span class="stat-label">Artículos</span>
+                        </div>
+                        <div class="stat-icon-wrapper">
+                            <span class="material-icons">article</span>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card stat-comments">
+                        <div class="stat-info">
+                            <span class="stat-value">{{ total_comments }}</span>
+                            <span class="stat-label">Comentarios</span>
+                        </div>
+                        <div class="stat-icon-wrapper">
+                            <span class="material-icons">forum</span>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card stat-pending">
+                        <div class="stat-info">
+                            <span class="stat-value stat-pending-val">{{ pending_comments }}</span>
+                            <span class="stat-label">Pendientes</span>
+                        </div>
+                        <div class="stat-icon-wrapper">
+                            <span class="material-icons">hourglass_empty</span>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card stat-categories">
+                        <div class="stat-info">
+                            <span class="stat-value stat-categories-val">{{ total_categories }}</span>
+                            <span class="stat-label">Categorías</span>
+                        </div>
+                        <div class="stat-icon-wrapper">
+                            <span class="material-icons">category</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Gráficos -->
+                <div class="charts-grid">
+                    <div class="chart-card">
+                        <h3 class="chart-title">Distribución por Categorías</h3>
+                        <div class="chart-container">
+                            <canvas id="chart-categories"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-card">
+                        <h3 class="chart-title">Actividad de Comentarios (Última Semana)</h3>
+                        <div class="chart-container">
+                            <canvas id="chart-comments"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- SECCIÓN 2: ARTÍCULOS (NOTICIAS) -->
+            <section id="section-news" class="dashboard-section">
+                <div class="card-table-wrapper">
+                    <div class="card-table-header">
+                        <h3 class="table-title">Gestión de Artículos</h3>
+                        
+                        <div class="table-filters">
+                            <div class="search-input-wrapper">
+                                <span class="material-icons">search</span>
+                                <input type="text" id="search-news" class="search-control" placeholder="Buscar por título...">
+                            </div>
+                            
+                            <select id="filter-category" class="filter-select">
+                                <option value="">Todas las Categorías</option>
+                                {% for category in categories_list %}
+                                    <option value="{{ category.id }}">{{ category.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="table-premium">
+                            <thead>
+                                <tr>
+                                    <th>Título</th>
+                                    <th>Categoría</th>
+                                    <th>Autor</th>
+                                    <th>Fecha de Publicación</th>
+                                    <th style="text-align: center;">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for news in news_list %}
+                                    <tr class="news-table-row" data-title="{{ news.title }}" data-category="{{ news.category.id }}">
+                                        <td>
+                                            <a href="{% url 'news_detail' slug=news.slug %}" class="news-row-title" target="_blank">
+                                                {{ news.title }}
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <span class="badge-pill badge-info">{{ news.category.name }}</span>
+                                        </td>
+                                        <td>
+                                            <div class="author-cell">
+                                                <div class="user-avatar" style="width: 28px; height: 28px; font-size: 0.7rem;">
+                                                    {{ news.author.username|slice:":2"|upper }}
+                                                </div>
+                                                <span>{{ news.author.username }}</span>
+                                            </div>
+                                        </td>
+                                        <td>{{ news.published_at|date:"d/m/Y H:i" }}</td>
+                                        <td>
+                                            <div class="table-actions" style="justify-content: center;">
+                                                <a href="{% url 'dashboard_news_edit' pk=news.pk %}" class="action-btn btn-edit-action" title="Editar">
+                                                    <span class="material-icons" style="font-size: 1.1rem;">edit</span>
+                                                </a>
+                                                <form action="{% url 'dashboard_news_delete' pk=news.pk %}" method="post" onsubmit="return confirm('¿Estás seguro de que deseas eliminar este artículo? Esta acción es irreversible.');" style="display: inline;">
+                                                    {% csrf_token %}
+                                                    <button type="submit" class="action-btn btn-delete-action" title="Eliminar" style="background: none; border: 1px solid var(--border-color); cursor: pointer;">
+                                                        <span class="material-icons" style="font-size: 1.1rem;">delete</span>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% empty %}
+                                    <tr>
+                                        <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 2rem;">
+                                            No hay artículos publicados todavía.
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- SECCIÓN 3: COMENTARIOS -->
+            <section id="section-comments" class="dashboard-section">
+                <div class="card-table-wrapper">
+                    <div class="card-table-header">
+                        <h3 class="table-title">Moderación de Comentarios</h3>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="table-premium">
+                            <thead>
+                                <tr>
+                                    <th>Usuario</th>
+                                    <th>Comentario</th>
+                                    <th>Artículo</th>
+                                    <th>Fecha</th>
+                                    <th style="text-align: center;">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="pending-comments-list">
+                                {% for comment in recent_pending_comments %}
+                                    <tr id="comment-row-{{ comment.id }}">
+                                        <td>
+                                            <div class="author-cell">
+                                                <div class="user-avatar" style="width: 28px; height: 28px; font-size: 0.7rem; background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));">
+                                                    {{ comment.user.username|slice:":2"|upper }}
+                                                </div>
+                                                <strong>{{ comment.user.username }}</strong>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="comment-text-box" title="{{ comment.content }}">
+                                                {{ comment.content }}
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <a href="{% url 'news_detail' slug=comment.news.slug %}" class="comment-news-link" target="_blank">
+                                                {{ comment.news.title }}
+                                            </a>
+                                        </td>
+                                        <td>{{ comment.created_at|date:"d/m/Y H:i" }}</td>
+                                        <td>
+                                            <div class="table-actions" style="justify-content: center;">
+                                                <button class="action-btn btn-approve-action btn-comment-action" data-id="{{ comment.id }}" data-action="approve" title="Aprobar comentario">
+                                                    <span class="material-icons" style="font-size: 1.1rem;">done</span>
+                                                </button>
+                                                <button class="action-btn btn-delete-action btn-comment-action" data-id="{{ comment.id }}" data-action="delete" title="Rechazar y eliminar">
+                                                    <span class="material-icons" style="font-size: 1.1rem;">close</span>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% empty %}
+                                    <tr>
+                                        <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 2rem;">
+                                            No hay comentarios pendientes de aprobación.
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- SECCIÓN 4: CATEGORÍAS -->
+            <section id="section-categories" class="dashboard-section">
+                <div class="card-table-wrapper">
+                    <div class="card-table-header">
+                        <h3 class="table-title">Categorías Registradas</h3>
+                        <button class="btn-premium btn-primary" id="btn-new-category">
+                            <span class="material-icons">add_box</span>
+                            <span>Nueva Categoría</span>
+                        </button>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="table-premium">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Descripción</th>
+                                    <th>Artículos Asociados</th>
+                                    <th>Slug</th>
+                                </tr>
+                            </thead>
+                            <tbody id="categories-table-body">
+                                {% for category in categories_list %}
+                                    <tr id="category-row-{{ category.id }}">
+                                        <td><strong>{{ category.name }}</strong></td>
+                                        <td style="color: var(--text-secondary);">{{ category.description|default:"Sin descripción" }}</td>
+                                        <td>
+                                            <span class="badge-pill badge-info">{{ category.news_count }} artículos</span>
+                                        </td>
+                                        <td><code>{{ category.slug }}</code></td>
+                                    </tr>
+                                {% empty %}
+                                    <tr>
+                                        <td colspan="4" style="text-align: center; color: var(--text-muted); padding: 2rem;">
+                                            No hay categorías registradas.
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+            
+        </main>
+        
+    </div>
+
+    <!-- MODAL PARA NUEVA CATEGORÍA -->
+    <div class="modal-overlay" id="category-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Agregar Nueva Categoría</h3>
+                <button class="modal-close" id="close-category-modal">&times;</button>
+            </div>
+            <form id="category-form-element">
+                <div class="modal-body">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="id_name">Nombre de la Categoría</label>
+                        {{ category_form.name }}
+                    </div>
+                    <div class="form-group">
+                        <label for="id_description">Descripción</label>
+                        {{ category_form.description }}
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-premium btn-secondary" id="btn-cancel-category">Cancelar</button>
+                    <button type="submit" class="btn-premium btn-primary">Guardar Categoría</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Script de inicialización de Chart.js -->
+    <script>
+        // Pasar datos de Django a Chart.js
+        const categoriesData = {
+            labels: {{ chart_categories_labels|safe }},
+            values: {{ chart_categories_values|safe }}
+        };
+
+        const commentsData = {
+            labels: {{ chart_comments_labels|safe }},
+            values: {{ chart_comments_values|safe }}
+        };
+
+        // Esperar a que cargue el script para ejecutar
+        window.addEventListener('DOMContentLoaded', () => {
+            if (typeof initDashboardCharts === 'function') {
+                initDashboardCharts(categoriesData, commentsData);
+            }
+        });
+    </script>
+    
+    <!-- JS del Dashboard -->
+    <script src="{% static 'js/dashboard.js' %}"></script>
+</body>
+</html>

@@ -1,0 +1,460 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% if form.instance.pk %}Editar Artículo{% else %}Nuevo Artículo{% endif %} - Canacintra News</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    
+    <!-- CSS del Dashboard -->
+    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+    
+    <!-- CKEditor 5 Media CSS/JS de Django -->
+    {{ form.media }}
+
+    <style>
+        .form-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-lg);
+            padding: 2rem;
+            box-shadow: var(--shadow-sm);
+            max-width: 900px;
+            margin: 0 auto 2rem auto;
+        }
+
+        .form-actions-bar {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        /* Estilo personalizado para el preview de la imagen */
+        .image-preview-container {
+            width: 100%;
+            max-height: 300px;
+            border-radius: var(--border-radius-md);
+            border: 2px dashed var(--border-color);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 0.5rem;
+            position: relative;
+            background-color: rgba(0,0,0,0.02);
+            transition: all var(--transition-fast);
+        }
+
+        .image-preview-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .image-preview-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-muted);
+            padding: 3rem;
+        }
+
+        /* Customización de CKEditor en modo oscuro */
+        [data-theme="dark"] .ck-editor__main .ck-content {
+            background-color: #1f2937 !important;
+            color: #f8fafc !important;
+            border-color: rgba(255, 255, 255, 0.08) !important;
+        }
+        [data-theme="dark"] .ck.ck-toolbar {
+            background-color: #111827 !important;
+            border-color: rgba(255, 255, 255, 0.08) !important;
+        }
+        [data-theme="dark"] .ck.ck-button {
+            color: #94a3b8 !important;
+            cursor: pointer;
+        }
+        [data-theme="dark"] .ck.ck-button:hover {
+            background-color: #374151 !important;
+        }
+        [data-theme="dark"] .ck.ck-button.ck-on {
+            background-color: #4b5563 !important;
+            color: #ffffff !important;
+        }
+    </style>
+</head>
+<body class="dashboard-body" data-theme="light">
+    
+    <!-- Toast Notifications Container -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <div class="dashboard-container">
+        
+        <!-- SIDEBAR -->
+        <aside class="dashboard-sidebar">
+            <div class="sidebar-brand">
+                <div class="brand-icon">CN</div>
+                <div class="brand-name">Canacintra News</div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <a href="{% url 'dashboard_home' %}?tab=overview" class="nav-item" style="text-decoration: none;">
+                    <span class="material-icons">dashboard</span>
+                    <span>Vista General</span>
+                </a>
+                <a href="{% url 'dashboard_home' %}?tab=news" class="nav-item active" style="text-decoration: none;">
+                    <span class="material-icons">article</span>
+                    <span>Artículos</span>
+                </a>
+                <a href="{% url 'dashboard_home' %}?tab=comments" class="nav-item" style="text-decoration: none;">
+                    <span class="material-icons">chat_bubble</span>
+                    <span>Comentarios</span>
+                </a>
+                <a href="{% url 'dashboard_home' %}?tab=categories" class="nav-item" style="text-decoration: none;">
+                    <span class="material-icons">category</span>
+                    <span>Categorías</span>
+                </a>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <a href="{% url 'news_list' %}" class="nav-item" style="margin-bottom: 0.5rem; border: 1px dashed var(--border-color); text-decoration: none;">
+                    <span class="material-icons">arrow_back</span>
+                    <span>Volver al Portal</span>
+                </a>
+                
+                <div class="user-profile">
+                    <div class="user-avatar">
+                        {{ request.user.username|slice:":2"|upper }}
+                    </div>
+                    <div class="user-info">
+                        <span class="user-name">{{ request.user.username }}</span>
+                        <span class="user-role">Administrador</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+        
+        <!-- MAIN CONTENT -->
+        <main class="dashboard-main">
+            
+            <!-- HEADER -->
+            <header class="dashboard-header">
+                <div class="header-title-area">
+                    <h1>{% if form.instance.pk %}Editar Artículo{% else %}Nuevo Artículo{% endif %}</h1>
+                    <p>{% if form.instance.pk %}Modifica la información del artículo e introduce imágenes.{% else %}Crea un nuevo artículo y publícalo al instante.{% endif %}</p>
+                </div>
+                
+                <div class="header-actions">
+                    <button class="theme-toggle-btn" id="theme-toggle" title="Cambiar Tema">
+                        <span class="material-icons">dark_mode</span>
+                    </button>
+                    <a href="{% url 'dashboard_home' %}?tab=news" class="btn-premium btn-secondary" style="text-decoration: none;">
+                        <span class="material-icons">close</span>
+                        <span>Cancelar</span>
+                    </a>
+                </div>
+            </header>
+            
+            <!-- FORMULARIO DE EDICIÓN/CREACIÓN -->
+            <div class="form-card">
+                <form method="post" enctype="multipart/form-data" id="news-form-element" novalidate>
+                    {% csrf_token %}
+                    
+                    {% if form.errors or image_formset.errors %}
+                        <div class="badge-pill badge-danger" style="margin-bottom: 1.5rem; display: block; padding: 1rem; border-radius: var(--border-radius-md); font-size: 0.85rem; font-weight: 500; text-align: left; line-height: 1.5; border-left: 4px solid var(--color-danger);">
+                            <strong style="display: block; margin-bottom: 0.5rem; font-size: 0.95rem;">Por favor, corrige los siguientes errores:</strong>
+                            <ul style="margin-left: 1.25rem; margin-top: 0.25rem; list-style-type: disc;">
+                                {% for field, errors in form.errors.items %}
+                                    <li><strong>{{ field|capfirst }}</strong>: {{ errors|join:", " }}</li>
+                                {% endfor %}
+                                {% for errors in image_formset.errors %}
+                                    {% if errors %}
+                                        {% for field, error_list in errors.items %}
+                                            <li><strong>Galería (Imagen {{ forloop.parentloop.counter }}) - {{ field|capfirst }}</strong>: {{ error_list|join:", " }}</li>
+                                        {% endfor %}
+                                    {% endif %}
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+
+                    
+                    <div class="form-group">
+                        <label for="id_title">Título del Artículo</label>
+                        {{ form.title }}
+                        {% if form.title.errors %}
+                            <div class="badge-pill badge-danger" style="margin-top: 0.25rem;">{{ form.title.errors|join:", " }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="id_category">Categoría</label>
+                        {{ form.category }}
+                        {% if form.category.errors %}
+                            <div class="badge-pill badge-danger" style="margin-top: 0.25rem;">{{ form.category.errors|join:", " }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Imagen Destacada</label>
+                        <div style="margin-bottom: 0.5rem;">
+                            {{ form.image }}
+                        </div>
+                        <div class="image-preview-container" id="image-preview-container">
+                            {% if form.instance.image %}
+                                <img src="{{ form.instance.image.url }}" alt="Vista Previa de Imagen" id="image-preview-el">
+                            {% else %}
+                                <div class="image-preview-placeholder" id="image-preview-placeholder">
+                                    <span class="material-icons" style="font-size: 3rem;">image</span>
+                                    <span>Ninguna imagen seleccionada</span>
+                                </div>
+                            {% endif %}
+                        </div>
+                        {% if form.image.errors %}
+                            <div class="badge-pill badge-danger" style="margin-top: 0.25rem;">{{ form.image.errors|join:", " }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="id_content">Contenido</label>
+                        <div class="editor-wrapper">
+                            {{ form.content }}
+                        </div>
+                        {% if form.content.errors %}
+                            <div class="badge-pill badge-danger" style="margin-top: 0.25rem;">{{ form.content.errors|join:", " }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- GALERÍA DE IMÁGENES SECUNDARIAS -->
+                    <div class="form-group" style="margin-top: 2rem; border-top: 1px solid var(--border-color); padding-top: 1.5rem;">
+                        <label style="font-size: 1.1rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
+                            <span class="material-icons" style="color: var(--color-secondary);">collections</span>
+                            <span>Galería de Imágenes (Imágenes Secundarias)</span>
+                        </label>
+                        
+                        {{ image_formset.management_form }}
+                        
+                        {% if image_formset.non_form_errors %}
+                            <div class="badge-pill badge-danger" style="margin-bottom: 1rem; display: block; padding: 0.5rem 1rem;">
+                                {{ image_formset.non_form_errors|join:", " }}
+                            </div>
+                        {% endif %}
+                        
+                        <div id="gallery-formset-container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
+                            {% for g_form in image_formset %}
+                                <div class="gallery-card" style="background-color: rgba(0,0,0,0.01); border: 1px solid var(--border-color); border-radius: var(--border-radius-md); padding: 1.25rem; display: flex; flex-direction: column; gap: 0.75rem; position: relative; transition: all var(--transition-fast);">
+                                    <h4 style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; margin-bottom: 0.25rem; display: flex; justify-content: space-between; align-items: center;">
+                                        <span>Imagen {{ forloop.counter }}</span>
+                                        {% if g_form.instance.pk and image_formset.can_delete %}
+                                            <span style="display: inline-flex; align-items: center; gap: 0.25rem; color: var(--color-danger); font-size: 0.75rem;">
+                                                {{ g_form.DELETE }}
+                                                <label for="{{ g_form.DELETE.id_for_label }}" style="margin-bottom: 0; color: var(--color-danger); cursor: pointer; font-weight: 500;">Eliminar</label>
+                                            </span>
+                                        {% endif %}
+                                    </h4>
+                                    
+                                    {{ g_form.id }}
+                                    
+                                    {% if g_form.instance.pk %}
+                                        <div style="width: 100%; height: 120px; border-radius: var(--border-radius-sm); overflow: hidden; background-color: #000; display: flex; align-items: center; justify-content: center; margin-bottom: 0.25rem;">
+                                            <img src="{{ g_form.instance.image.url }}" style="width: 100%; height: 100%; object-fit: cover;">
+                                        </div>
+                                    {% endif %}
+                                    
+                                    <div class="form-group" style="margin-bottom: 0.5rem;">
+                                        <label style="font-size: 0.75rem; margin-bottom: 0.25rem; font-weight: 600;">Archivo de Imagen</label>
+                                        {{ g_form.image }}
+                                        {% if g_form.image.errors %}
+                                            <div class="badge-pill badge-danger" style="margin-top: 0.25rem; font-size: 0.7rem;">{{ g_form.image.errors|join:", " }}</div>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label style="font-size: 0.75rem; margin-bottom: 0.25rem; font-weight: 600;">Pie de foto / Descripción</label>
+                                        {{ g_form.caption }}
+                                        {% if g_form.caption.errors %}
+                                            <div class="badge-pill badge-danger" style="margin-top: 0.25rem; font-size: 0.7rem;">{{ g_form.caption.errors|join:", " }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        
+                        <button type="button" id="add-gallery-image-btn" class="btn-premium btn-secondary" style="margin-top: 1.5rem; width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                            <span class="material-icons">add_a_photo</span>
+                            <span>Añadir Imagen a la Galería</span>
+                        </button>
+                    </div>
+                    
+                    <!-- Plantilla para formulario vacío de FormSet (oculta) -->
+                    <div id="empty-form-template" style="display: none;">
+                        <div class="gallery-card empty-form-card" style="background-color: rgba(0,0,0,0.01); border: 1px solid var(--border-color); border-radius: var(--border-radius-md); padding: 1.25rem; display: flex; flex-direction: column; gap: 0.75rem; position: relative;">
+                            <h4 style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; margin-bottom: 0.25rem; display: flex; justify-content: space-between; align-items: center;">
+                                <span>Nueva Imagen</span>
+                                <button type="button" class="btn-remove-form" style="background: none; border: none; color: var(--color-danger); cursor: pointer; display: flex; align-items: center;" title="Quitar imagen">
+                                    <span class="material-icons" style="font-size: 1.1rem;">close</span>
+                                </button>
+                            </h4>
+                            
+                            <div class="form-group" style="margin-bottom: 0.5rem;">
+                                <label style="font-size: 0.75rem; margin-bottom: 0.25rem; font-weight: 600;">Archivo de Imagen</label>
+                                {{ image_formset.empty_form.image }}
+                            </div>
+                            
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label style="font-size: 0.75rem; margin-bottom: 0.25rem; font-weight: 600;">Pie de foto / Descripción</label>
+                                {{ image_formset.empty_form.caption }}
+                            </div>
+                        </div>
+                    </div>
+
+                    
+                    <div class="form-actions-bar">
+                        <a href="{% url 'dashboard_home' %}?tab=news" class="btn-premium btn-secondary" style="text-decoration: none;">Cancelar</a>
+                        <button type="submit" class="btn-premium btn-primary">
+                            <span class="material-icons">save</span>
+                            <span>Guardar Artículo</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            
+        </main>
+        
+    </div>
+
+    <!-- Scripts del Dashboard e Imagen Preview -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Lógica de Tema
+            const themeToggleBtn = document.getElementById('theme-toggle');
+            const body = document.body;
+            const savedTheme = localStorage.getItem('dashboard-theme') || 'light';
+            body.setAttribute('data-theme', savedTheme);
+            
+            if (themeToggleBtn) {
+                const iconSpan = themeToggleBtn.querySelector('span');
+                if (iconSpan) {
+                    iconSpan.textContent = savedTheme === 'dark' ? 'light_mode' : 'dark_mode';
+                }
+
+                themeToggleBtn.addEventListener('click', () => {
+                    const currentTheme = body.getAttribute('data-theme');
+                    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                    body.setAttribute('data-theme', newTheme);
+                    localStorage.setItem('dashboard-theme', newTheme);
+                    if (iconSpan) {
+                        iconSpan.textContent = newTheme === 'dark' ? 'light_mode' : 'dark_mode';
+                    }
+                });
+            }
+
+            // Vista previa de imagen en tiempo real
+            const imageInput = document.querySelector('.form-file-input');
+            const previewContainer = document.getElementById('image-preview-container');
+            const placeholder = document.getElementById('image-preview-placeholder');
+
+            if (imageInput) {
+                imageInput.addEventListener('change', function() {
+                    const file = this.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            // Limpiar contenedor y agregar img
+                            previewContainer.innerHTML = `<img src="${e.target.result}" alt="Vista Previa de Imagen">`;
+                        }
+                        reader.readAsDataURL(file);
+                    } else {
+                        // Restaurar placeholder si se cancela la selección y no había imagen previa
+                        {% if not form.instance.image %}
+                            previewContainer.innerHTML = `
+                                <div class="image-preview-placeholder" id="image-preview-placeholder">
+                                    <span class="material-icons" style="font-size: 3rem;">image</span>
+                                    <span>Ninguna imagen seleccionada</span>
+                                </div>
+                            `;
+                        {% endif %}
+                    }
+                });
+            }
+
+            // Gestión dinámica del FormSet de la Galería
+            const addImageBtn = document.getElementById('add-gallery-image-btn');
+            const formsetContainer = document.getElementById('gallery-formset-container');
+            const totalFormsInput = document.getElementById('id_images-TOTAL_FORMS');
+            const emptyTemplate = document.getElementById('empty-form-template');
+
+            if (addImageBtn && formsetContainer && totalFormsInput && emptyTemplate) {
+                addImageBtn.addEventListener('click', () => {
+                    const currentFormCount = parseInt(totalFormsInput.value);
+                    
+                    // Clonar el template vacío
+                    const newFormHtml = emptyTemplate.innerHTML.replace(/__prefix__/g, currentFormCount);
+                    
+                    // Crear un contenedor temporal para parsear el HTML
+                    const tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = newFormHtml;
+                    const newCard = tempDiv.firstElementChild;
+                    
+                    // Actualizar el título de la imagen agregada dinámicamente
+                    const titleSpan = newCard.querySelector('h4 span');
+                    if (titleSpan) {
+                        titleSpan.textContent = `Nueva Imagen (Agregada)`;
+                    }
+
+                    // Evento para quitar el formulario dinámico antes de guardarlo
+                    const removeBtn = newCard.querySelector('.btn-remove-form');
+                    if (removeBtn) {
+                        removeBtn.addEventListener('click', () => {
+                            newCard.remove();
+                            // Decrementar TOTAL_FORMS y re-indexar los elementos restantes
+                            const forms = formsetContainer.querySelectorAll('.gallery-card');
+                            totalFormsInput.value = forms.length;
+                            
+                            // Re-indexar los inputs restantes para que no haya huecos en el formset
+                            forms.forEach((formCard, idx) => {
+                                // Actualizar ids, names y labels
+                                const inputs = formCard.querySelectorAll('input, select, textarea');
+                                inputs.forEach(input => {
+                                    if (input.name) {
+                                        input.name = input.name.replace(/images-\d+-/, `images-${idx}-`);
+                                    }
+                                    if (input.id) {
+                                        input.id = input.id.replace(/id_images-\d+-/, `id_images-${idx}-`);
+                                    }
+                                });
+                                
+                                const labels = formCard.querySelectorAll('label');
+                                labels.forEach(label => {
+                                    if (label.getAttribute('for')) {
+                                        label.setAttribute('for', label.getAttribute('for').replace(/id_images-\d+-/, `id_images-${idx}-`));
+                                    }
+                                });
+                            });
+                        });
+                    }
+                    
+                    // Insertar la nueva tarjeta en el contenedor
+                    formsetContainer.appendChild(newCard);
+                    
+                    // Incrementar el TOTAL_FORMS
+                    totalFormsInput.value = currentFormCount + 1;
+                });
+            }
+        });
+    </script>
+
+</body>
+</html>
